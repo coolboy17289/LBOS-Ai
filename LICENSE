@@ -1,0 +1,26 @@
+MIT License
+
+Copyright (c) 2026 Lihan Badenhorst
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+
+ADDITIONAL TERMS:
+1. RESEARCH/EDUCATIONAL USE: This software is intended for research and educational purposes only. Commercial use requires explicit permission from the copyright holder.
+2. AI TRAINING DATA USAGE RESTRICTION: The training data processing capabilities of this software must only be used with data that the user has the legal right to process. Users are responsible for ensuring compliance with copyright laws, terms of service, and data usage rights for all input data (YouTube videos, web articles, etc.).
+3. NO WARRANTY FOR DATA ACCURACY: The software does not guarantee the accuracy, completeness, or suitability of generated datasets or trained models for any particular purpose.
