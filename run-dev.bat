@@ -1,3 +1,4 @@
+
 @echo off
 REM LBOS-AI Development Starter
 REM Starts both backend and frontend for development

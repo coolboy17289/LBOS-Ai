@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Log } = require('../models');
+const { Log, PipelineJob } = require('../models');
 const { authenticateToken } = require('./auth');
 const fs = require('fs');
 const path = require('path');
@@ -11,7 +11,6 @@ router.get('/:jobId', authenticateToken, async (req, res) => {
     const { jobId } = req.params;
 
     // First check if job exists
-    const { PipelineJob } = require('../models');
     const job = await PipelineJob.findOne({ where: { jobId } });
 
     if (!job) {
@@ -43,12 +42,11 @@ router.get('/:jobId', authenticateToken, async (req, res) => {
 });
 
 // Get logs as text file
-router.get('/:jobId}*/, authenticateToken, async (req, res) => {
+router.get('/:jobId/log', authenticateToken, async (req, res) => {
   try {
     const { jobId } = req.params;
 
     // First check if job exists
-    const { PipelineJob } = require('../models');
     const job = await PipelineJob.findOne({ where: { jobId } });
 
     if (!job) {
@@ -62,7 +60,7 @@ router.get('/:jobId}*/, authenticateToken, async (req, res) => {
     });
 
     // Format as plain text
-    const logText = logs.map(log => `[${log.timestamp}] [${log.level.toUpperCase()}] ${log.message}`).join('\n');
+    const logText = logs.map(log => `[${new Date(log.timestamp).toISOString()}] [${log.level.toUpperCase()}] ${log.message}`).join('\n');
 
     res.setHeader('Content-Type', 'text/plain');
     res.setHeader('Content-Disposition', `attachment; filename=${jobId}_log.txt`);
@@ -79,7 +77,6 @@ router.delete('/:jobId', authenticateToken, async (req, res) => {
     const { jobId } = req.params;
 
     // Check if user is admin (simplified)
-    if (in  for now)
     if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Admin access required' });
     }

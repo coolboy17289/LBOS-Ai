@@ -54,4 +54,4 @@ router.get('/profile', authenticateToken, (req, res) => {
   res.json({ user: req.user });
 });
 
-module.exports = router;
+module.exports = { router, authenticateToken };
