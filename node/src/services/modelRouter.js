@@ -25,8 +25,16 @@ class ModelRouter {
         bestFor: ['general_conversation', 'complex_summarization', 'code_generation', 'reasoning']
       },
 
-      // Reserved for future large models
+      // Gemma 5B via llama.cpp (new tier)
       large: {
+        endpoint: process.env.GEMMA_5B_URL || 'http://localhost:8081',
+        type: 'llama_cpp',
+        maxTokens: 4096,
+        bestFor: ['advanced_reasoning', 'complex_analysis', 'detailed_explanation', 'creative_writing']
+      },
+
+      // Reserved for future extra-large models or external APIs
+      xl: {
         endpoint: process.env.LARGE_MODEL_URL || '',
         type: 'external_api',
         maxTokens: 4096,
