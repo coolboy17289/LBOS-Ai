@@ -166,7 +166,7 @@ const Dashboard: React.FC = () => {
             {recentActivity.length > 0 ? (
               <div>
                 {recentActivity.map((activity: any, index: number) => (
-                  <div key={index} sx={{ mb: 2, p: 2, borderRadius: 1, backgroundColor: '#f5f5f5' }}>
+                  <div key={index} sx={{ mb: 2, p: 2, borderRadius: 1, bgcolor: 'grey.50' }}>
                     <Typography variant="body2" fontWeight="medium">
                       {activity.type}
                     </Typography>

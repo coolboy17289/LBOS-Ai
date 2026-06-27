@@ -1,39 +1,27 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
-import Ingestion from './pages/Ingestion';
-import Training from './pages/Training';
-import Evaluation from './pages/Evaluation';
-import Settings from './pages/Settings';
+import ModelChat from './pages/ModelChat';
+import Login from './pages/Login';
 import { useAuth } from './contexts/AuthContext';
 
 function App() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isLoading } = useAuth();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
   return (
-    <div className="App">
-      <header className="app-header">
-        <h1>LBOS-AI Control Panel</h1>
-        <div className="user-info">
-          Welcome, {user?.username || 'User'}!
-        </div>
-      </header>
-
-      <main className="app-main">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/ingestion" element={<Ingestion />} />
-          <Route path="/training" element={<Training />} />
-          <Route path="/evaluation" element={<Evaluation />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
+        <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" replace />} />
+        <Route path="/model-chat" element={user ? <ModelChat /> : <Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
