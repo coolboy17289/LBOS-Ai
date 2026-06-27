@@ -1,0 +1,51 @@
+# Model Runtime Configuration
+model:
+  path: "./models/gemma-4b-it-q4_k_m.gguf"
+  n_ctx: 8192          # Context window
+  n_batch: 512         # Batch size for prompt processing
+  n_threads: 8         # Number of CPU threads to use
+  n_gpu_layers: 0      # Number of layers to offload to GPU (0 = CPU only)
+  seed: -1             # Random seed (-1 for random)
+  f16_kv: true         # Use half-precision for key/value cache
+  logits_all: false    # Return logits for all tokens (not just last)
+  vocab_only: false    # Only load vocabulary, no weights
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+  cors_origin: "*"
+  max_concurrent_requests: 4
+  request_timeout_seconds: 120
+  enable_websockets: true
+  enable_streaming: true
+
+safety:
+  max_prompt_length: 4096
+  max_response_tokens: 2048
+  blocked_terms: []    # List of terms to block in prompts/outputs
+  enable_content_filter: true
+  toxicity_threshold: 0.8
+
+performance:
+  use_mlock: true      # Lock memory to prevent swapping
+  use_mmap: true       # Memory map model file
+  num_keep: 0          # Number of tokens to keep from prompt
+  freq_penalty: 0.0    # Frequency penalty
+  presence_penalty: 0.0 # Presence penalty
+  temperature: 0.8     # Default temperature
+  top_p: 0.95          # Top-p sampling
+  top_k: 40            # Top-k sampling
+  repeat_penalty: 1.1  # Penalty for repeating tokens
+
+logging:
+  level: "INFO"
+  file: "./logs/runtime.log"
+  max_size_mb: 100
+  backup_count: 5
+  console: true
+
+metrics:
+  enabled: true
+  endpoint: "/metrics"
+  port: 8081
+  collect_interval_seconds: 10
