@@ -6,6 +6,10 @@ Verifies that all components can be imported and initialized
 
 import sys
 import os
+
+# Add current directory to Python path so we can import lbos_ai
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 import logging
 
 # Set up logging
@@ -86,13 +90,23 @@ def test_memory_operations():
         print(f"✓ Memory stats: {stats['working_memory']['count']} working, {stats['episodic_memory']['count']} episodic, {stats['semantic_memory']['count']} semantic")
 
         # Clean up
-        os.remove("./test_memory.db")
+        if os.path.exists("./test_memory.db"):
+            os.remove("./test_memory.db")
+        if os.path.exists("./test_eval"):
+            import shutil
+            shutil.rmtree("./test_eval")
         return True
 
     except Exception as e:
         print(f"✗ Memory operations test failed: {e}")
         import traceback
         traceback.print_exc()
+        # Clean up
+        if os.path.exists("./test_memory.db"):
+            os.remove("./test_memory.db")
+        if os.path.exists("./test_eval"):
+            import shutil
+            shutil.rmtree("./test_eval")
         return False
 
 def test_feedback_system():
@@ -112,7 +126,7 @@ def test_feedback_system():
 
         print(f"✓ Created feedback item: {feedback.id}")
         print(f"  Input: {feedback.input_text}")
-        print(f"  Model output: {model_output}")
+        print(f"  Model output: {feedback.model_output}")
         print(f"  Expected: {feedback.expected_output}")
 
         # Test serialization
@@ -150,7 +164,7 @@ def main():
         print("🎉 All tests passed! The system is ready.")
         return 0
     else:
-        print("❌ Some tests failed. Please check the errors above.")
+        print("❦ Some tests failed. Please check the errors above.")
         return 1
 
 if __name__ == "__main__":
