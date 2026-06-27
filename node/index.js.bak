@@ -10,9 +10,6 @@ const jobRoutes = require('./src/routes/jobs');
 const modelRoutes = require('./src/routes/models');
 const evalRoutes = require('./src/routes/evaluations');
 const logRoutes = require('./src/routes/logs');
-const statsRoutes = require('./src/routes/stats');
-const activityRoutes = require('./src/routes/activity');
-const modelUsageRoutes = require('./src/routes/modelUsage');
 const { initializeWebSocket } = require('./src/ws/websocket');
 
 const app = express();
@@ -32,8 +29,6 @@ app.use('/api/models', modelRoutes);
 app.use('/api/evaluations', evalRoutes);
 app.use('/api/logs', logRoutes);
 app.use('/api/stats', statsRoutes);
-app.use('/api/activity', activityRoutes);
-app.use('/api/models/usage', modelUsageRoutes);
 
 // Serve static files from React build app
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
