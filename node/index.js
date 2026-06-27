@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
+const WebSocket = require('ws');
 const path = require('path');
 const { QueueManager } = require('./jobs/queueManager');
 const { sequelize } = require('./models');
@@ -13,7 +14,7 @@ const { initializeWebSocket } = require('./ws/websocket');
 
 const app = express();
 const server = http.createServer(app);
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000; // Changed default to 5000 to avoid conflict with React dev server
 
 // Middleware
 app.use(express.json());
@@ -21,21 +22,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(require('cors')());
 app.use(require('helmet')());
 
-// Serve static files from frontend build (if exists)
-const frontendBuildPath = path.join(__dirname, '..', 'frontend', 'build');
-if (require('fs').existsSync(frontendBuildPath)) {
-  app.use(express.static(frontendBuildPath));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(frontendBuildPath, 'index.html'));
-  });
-}
-
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/models', modelRoutes);
 app.use('/api/evaluations', evalRoutes);
 app.use('/api/logs', logRoutes);
+
+// Serve static files from React build app
+app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
+// Handles any requests that don't match the ones above
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'));
+});
 
 // Health check
 app.get('/health', (req, res) => {

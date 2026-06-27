@@ -1,14 +1,10 @@
 package com.lbos.orchestrator.controller;
 
-import com.lbos.orchestrator.model.Workflow;
-import com.lbos.orchestrator.model.WorkflowStep;
-import com.lbos.orchestrator.service.WorkflowEngine;
+import com.lbos.orchestrator.service.WorkflowEngineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/workflows")
@@ -16,18 +12,16 @@ import java.util.List;
 @Slf4j
 public class WorkflowController {
 
-    private final WorkflowEngine workflowEngine;
-    // In a real app, we would also inject repositories for creating workflows
-    // For simplicity, we'll focus on execution
+    private final WorkflowEngineService workflowEngineService;
 
     /**
-     * Execute a workflow by its ID
+     * Execute a workflow by ID
      */
     @PostMapping("/{workflowId}/execute")
     public ResponseEntity<?> executeWorkflow(@PathVariable String workflowId) {
         try {
-            // This would typically be asynchronous, but we'll do it synchronously for demo
-            workflowEngine.executeWorkflow(workflowId);
+            // This runs synchronously; in production, you'd use async or message queue
+            workflowEngineService.executeWorkflow(workflowId);
             return ResponseEntity.ok().body("Workflow execution started: " + workflowId);
         } catch (Exception e) {
             log.error("Failed to execute workflow {}", workflowId, e);
@@ -36,17 +30,16 @@ public class WorkflowController {
     }
 
     /**
-     * Get workflow status (would need repository to fetch)
-     * For now, placeholder
+     * Get workflow status (placeholder)
      */
     @GetMapping("/{workflowId}/status")
     public ResponseEntity<?> getWorkflowStatus(@PathVariable String workflowId) {
         // TODO: Implement using workflow repository
-        return ResponseEntity.ok().body("Status for workflow: " + workflowId + " (not implemented)");
+        return ResponseEntity.ok().body("Status for workflow: " + workflowId + " (not fully implemented)");
     }
 
     /**
-     * Create a simple workflow for ingestion -> training -> evaluation
+     * Create a simple demo workflow for ingestion -> training -> evaluation
      * This is just for demonstration; in a real system, workflows would be defined via API or config
      */
     @PostMapping("/create-demo")

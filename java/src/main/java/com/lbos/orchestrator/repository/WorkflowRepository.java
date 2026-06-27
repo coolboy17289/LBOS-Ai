@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface WorkflowRepository extends JpaRepository<Workflow, Long> {
+public interface WorkflowRepository extends JpaRepository<Workflow, String> {
     Optional<Workflow> findByWorkflowId(String workflowId);
 }

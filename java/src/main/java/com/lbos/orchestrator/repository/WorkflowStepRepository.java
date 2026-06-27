@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface WorkflowStepRepository extends JpaRepository<WorkflowStep, Long> {
     Optional<WorkflowStep> findByStepId(String stepId);
-    List<WorkflowStep> findByWorkflowIdOrderById(Long workflowId);
+    List<WorkflowStep> findByWorkflowIdOrderById(String workflowId);
 }
