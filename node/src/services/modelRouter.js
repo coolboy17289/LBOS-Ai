@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const logger = require('../utils/logger');
 
 class ModelRouter {
+  // Gemma 5B integration - Updated [DATE]
   constructor() {
     this.models = {
       // Local lightweight models (Python-based)
@@ -64,6 +65,19 @@ class ModelRouter {
         },
         model: 'small',
         priority: 1
+      },
+
+      // Route complex reasoning tasks to Gemma 5B
+      {
+        condition: (request) => {
+          const { taskType, complexity, inputLength } = request;
+          // Complex tasks that benefit from larger model
+          return (taskType === 'reasoning' || taskType === 'complex_analysis' || 
+                  taskType === 'detailed_explanation' || taskType === 'creative_writing') &&
+                 (complexity === 'high' || inputLength > 300);
+        },
+        model: 'large', // Gemma 5B
+        priority: 1 // High priority for complex tasks
       },
 
       // Default to Gemma 4B for most tasks
@@ -194,7 +208,14 @@ class ModelRouter {
     switch (model.type) {
       case 'llama_cpp':
         return {
-          model: "gemma-4b-it",
+          // Determine which Gemma variant to use based on the model key
+          let modelName = "gemma-4b-it"; // Default to Gemma 4B
+          if (model.key === 'large') {
+            modelName = "gemma-5b-it"; // Gemma 5B for large tier
+          }
+          // Future: if (model.key === 'xl') { modelName = "gemma-XXb-it"; }
+
+          model: modelName,
           prompt: request.prompt || request.input || "",
           max_tokens: baseRequest.max_tokens,
           temperature: request.temperature || 0.7,

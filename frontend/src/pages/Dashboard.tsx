@@ -1,27 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { Grid, Card, CardContent, Typography, Button, CircularProgress, Tooltip } from '@mui/material';
-import { UseCase } from '@mui/icons-material';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useEffect, useState } from 'react';
+import { Grid, Card, CardContent, Typography, Button, TextField, CircularProgress, Divider, Container } from '@mui/material';
 import { useApi } from '../hooks/useApi';
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
   const { data: stats, loading, error } = useApi('/api/stats');
-  const [recentJobs, setRecentJobs] = useState<any[]>([]);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [modelUsage, setModelUsage] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch recent jobs
-    fetch('/api/jobs?limit=5')
-      .then(res => res.json())
-      .then(data => setRecentJobs(data.jobs || []))
-      .catch(err => console.error('Failed to fetch recent jobs:', err));
+    const fetchData = async () => {
+      try {
+        // Fetch recent activity
+        const activityResponse = await fetch('/api/activity/recent');
+        const activityData = await activityResponse.json();
+        setRecentActivity(activityData);
+
+        // Fetch model usage stats
+        const usageResponse = await fetch('/api/models/usage');
+        const usageData = await usageResponse.json();
+        setModelUsage(usageData);
+      } catch (err) {
+        console.error('Failed to fetch dashboard data:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <Grid container spacing={2}>
+      <Grid container sx={{ pt: 4 }}>
         <Grid item xs={12}>
-          <Typography variant="h4" align="center">
+          <Typography align="center" variant="h4">
             Loading Dashboard...
           </Typography>
           <CircularProgress />
@@ -32,10 +45,10 @@ const Dashboard: React.FC = () => {
 
   if (error) {
     return (
-      <Grid container spacing={2}>
+      <Grid container sx={{ pt: 4 }}>
         <Grid item xs={12}>
           <Typography color="error" align="center">
-            Error loading dashboard: {error}
+            Error loading dashboard: {error.message}
           </Typography>
         </Grid>
       </Grid>
@@ -43,152 +56,143 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <>
-      <Typography variant="h4" gutterBottom>
-        Dashboard
+    <Container sx={{ pt: 4 }}>
+      <Typography variant="h4" align="center" mb={4}>
+        LBOS-AI Dashboard
       </Typography>
 
-      <Grid container spacing={3}>
-        {/* System Status Cards */}
+      {/* System Overview Cards */}
+      <Grid container spacing={3} mb={4}>
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
-              <Typography variant="h6" color="text.secondary">
+              <Typography variant="h6" color="text.primary">
                 System Status
               </Typography>
-              <Typography variant="h4">
-                {stats?.status || 'Online'}
+              <Typography variant="h2">
+                {stats?.status === 'online' ? 'Online' : 'Offline'}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
-
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
-              <Typography variant="h6" color="text.secondary">
-                Models Trained
+              <Typography variant="h6" color="text.primary">
+                Models Loaded
               </Typography>
-              <Typography variant="h4">
-                {stats?.models || 0}
+              <Typography variant="h2">
+                {stats?.modelsLoaded || 0}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
-
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
-              <Typography variant="h6" color="text.secondary">
-                Datasets Processed
+              <Typography variant="h6" color="text.primary">
+                Total Requests
               </Typography>
-              <Typography variant="h4">
-                {stats?.datasets || 0}
+              <Typography variant="h2">
+                {stats?.totalRequests || 0}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
-
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
-              <Typography variant="h6" color="text.secondary">
-                Evaluations Run
+              <Typography variant="h6" color="text.primary">
+                Avg Response Time
               </Typography>
-              <Typography variant="h4">
-                {stats?.evaluations || 0}
+              <Typography variant="h2">
+                {stats?.avgResponseTime?.toFixed(1) || 0}ms
               </Typography>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
 
-      {/* Recent Activity */}
-      <Grid item xs={12} mt={4}>
+      {/* Model Usage Section */}
+      <Grid item xs={12} mb={4}>
         <Card>
           <CardContent>
             <Typography variant="h5" gutterBottom>
-              Recent Activity
+              Model Usage Statistics
             </Typography>
-            {recentJobs.length > 0 ? (
-              <div>
-                {recentJobs.map((job: any) => (
-                  <div key={job.jobId} sx={{ mb: 2, p: 1, borderBottom: 1, borderColor: 'divider' }}>
-                    <Typography variant="body1" color="text.primary">
-                      {job.type}: {job.jobId.substring(0, 8)}...
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {job.status} • {new Date(job.createdAt).toLocaleTimeString()}
-                    </Typography>
-                  </div>
+            {modelUsage.length > 0 ? (
+              <Grid container spacing={3}>
+                {modelUsage.map((model: any) => (
+                  <Grid item xs={12} sm={6} md={4} key={model.name}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" color="text.primary">
+                          {model.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Type: {model.type}
+                        </Typography>
+                        <Divider />
+                        <Typography variant="body1">
+                          Requests: {model.requestCount}
+                        </Typography>
+                        <Typography variant="body1">
+                          Avg. Response Time: {model.avgResponseTime?.toFixed(1)}ms
+                        </Typography>
+                        <Typography variant="body1">
+                          Success Rate: {(model.successRate * 100).toFixed(1)}%
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  >
                 ))}
-              </div>
+              </Grid>
             ) : (
-              <Typography color="text.secondary">
-                No recent activity
+              <Typography align="center" color="text.secondary">
+                No model usage data available
               </Typography>
             )}
           </CardContent>
         </Card>
       </Grid>
 
-      {/* Quick Actions */}
-      <Grid item xs={12} mt={4}>
+      {/* Recent Activity */}
+      <Grid item xs={12}>
         <Card>
           <CardContent>
             <Typography variant="h5" gutterBottom>
-              Quick Actions
+              Recent Activity
             </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={6} sm={3}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  fullWidth
-                  startIcon={<AddCircleOutline />}
-                >
-                  New Ingestion
-                </Button>
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <Button
-                  variant="contained"
-                  color="success"
-                  size="large"
-                  fullWidth
-                  startIcon={<TrendingUp />}
-                >
-                  Start Training
-                </Button>
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <Button
-                  variant="contained"
-                  color="info"
-                  size="large"
-                  fullWidth
-                  startIcon={<BarChart />}
-                >
-                  Run Evaluation
-                </Button>
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <Button
-                  variant="contained"
-                  color="warning"
-                  size="large"
-                  fullWidth
-                  startIcon={<Settings />}
-                >
-                  Settings
-                </Button>
-              </Grid>
-            </Grid>
+            {recentActivity.length > 0 ? (
+              <div>
+                {recentActivity.map((activity: any, index: number) => (
+                  <div key={index} sx={{ mb: 2, p: 2, borderRadius: 1, backgroundColor: '#f5f5f5' }}>
+                    <Typography variant="body2" fontWeight="medium">
+                      {activity.type}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {activity.description}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {new Date(activity.timestamp).toLocaleString()}
+                    </Typography>
+                    {activity.modelUsed && (
+                      <Typography variant="caption" color="primary">
+                        Model: {activity.modelUsed}
+                      </Typography>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Typography align="center" color="text.secondary">
+                No recent activity
+              </Typography>
+            )}
           </CardContent>
         </Card>
       </Grid>
-    </>
+    </Container>
   );
 };
 
