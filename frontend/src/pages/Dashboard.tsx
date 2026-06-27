@@ -1,27 +1,46 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Card, CardContent, Typography, Button, TextField, CircularProgress, Divider, Container } from '@mui/material';
-import { useApi } from '../hooks/useApi';
+import { 
+  Grid, 
+  Card, 
+  CardContent, 
+  Typography, 
+  Button, 
+  TextField, 
+  CircularProgress, 
+  Divider, 
+  Container 
+} from '@mui/material';
 
 const Dashboard: React.FC = () => {
-  const { data: stats, loading, error } = useApi('/api/stats');
+  const [stats, setStats] = useState<any>(null);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [modelUsage, setModelUsage] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
+        setError(null);
+        
+        // Fetch stats
+        const statsResponse = await fetch('/api/stats');
+        const statsData = await statsResponse.json();
+        setStats(statsData);
+        
         // Fetch recent activity
         const activityResponse = await fetch('/api/activity/recent');
         const activityData = await activityResponse.json();
         setRecentActivity(activityData);
-
+        
         // Fetch model usage stats
         const usageResponse = await fetch('/api/models/usage');
         const usageData = await usageResponse.json();
         setModelUsage(usageData);
       } catch (err) {
         console.error('Failed to fetch dashboard data:', err);
+        setError('Failed to load dashboard data');
       } finally {
         setIsLoading(false);
       }
@@ -48,7 +67,7 @@ const Dashboard: React.FC = () => {
       <Grid container sx={{ pt: 4 }}>
         <Grid item xs={12}>
           <Typography color="error" align="center">
-            Error loading dashboard: {error.message}
+            Error loading dashboard: {error}
           </Typography>
         </Grid>
       </Grid>
@@ -137,7 +156,7 @@ const Dashboard: React.FC = () => {
                           Requests: {model.requestCount}
                         </Typography>
                         <Typography variant="body1">
-                          Avg. Response Time: {model.avgResponseTime?.toFixed(1)}ms
+                          Avg. Response Time: {model.avgResponseTime?.toFixed(1) || 0}ms
                         </Typography>
                         <Typography variant="body1">
                           Success Rate: {(model.successRate * 100).toFixed(1)}%

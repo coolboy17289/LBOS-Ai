@@ -23,9 +23,9 @@ const ModelChat: React.FC = () => {
 
   const [messages, setMessages] = useState<Array<{text: string, isUser: boolean, modelUsed?: string, timestamp: string}>>([]);
   const [input, setInput] = useState('');
-  [, setLoading] = useState(false);
-  [selectedModel, setSelectedModel] = useState('auto');
-  [models, setModels] = useState<Array<{value: string, label: string}>>([
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('auto');
+  const [models, setModels] = useState<Array<{value: string, label: string}>>([
     { value: 'auto', label: 'Auto Select' },
     { value: 'small', label: 'Small (Local)' },
     { value: 'medium', label: 'Medium (Gemma 4B)' },
@@ -62,7 +62,7 @@ const ModelChat: React.FC = () => {
 
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    setLoading(true);
+    setIsLoading(true);
 
     try {
       const response = await fetch('/api/chat', {
@@ -97,17 +97,17 @@ const ModelChat: React.FC = () => {
         }
       ]);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<TextField>) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
       sendMessage();
     }
   };
 
-  if (loading && messages.length === 0) {
+  if (isLoading && messages.length === 0) {
     return (
       <Box sx={{ p: 4, textAlign: 'center' }}>
         <Typography variant="h5">Loading AI models...</Typography>
@@ -186,16 +186,16 @@ const ModelChat: React.FC = () => {
             onKeyPress={handleKeyPress}
             placeholder="Type a message..."
             sx={{ flexGrow: 1 }}
-            disabled={loading}
+            disabled={isLoading}
           />
           <Button
             variant="contained"
             color="primary"
             onClick={sendMessage}
-            disabled={loading || !input.trim()}
+            disabled={isLoading || !input.trim()}
             sx={{ px: 4 }}
           >
-            {loading ? 'Sending...' : 'Send'}
+            {isLoading ? 'Sending...' : 'Send'}
           </Button>
         </Stack>
       </Box>
