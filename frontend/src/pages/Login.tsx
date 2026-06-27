@@ -1,85 +1,96 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  CircularProgress,
+  Container
+} from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
-import { Button, TextField, Typography, Box, CircularProgress } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { login, loading } = useAuth();
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-
     try {
-      await login(username, password);
-      navigate('/');
-    } catch (err: any) {
-      setError(err.message || 'Login failed');
-    } finally {
-      setLoading(false);
+      await login(email, password);
+      navigate('/dashboard');
+    } catch (err) {
+      alert('Login failed. Please check your credentials.');
     }
   };
 
+  if (loading) {
+    return (
+      <Container sx={{ py: 8 }}>
+        <Typography variant="h4" align="center" mb={4}>
+          LBOS-AI
+        </Typography>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 4, px: 3, py: 4 }} maxWidth="xs">
-      <Typography component="h1" variant="h5" align="center" mb={4}>
-        LBOS-AI Login
+    <Container maxWidth="xs" sx={{ py: 8 }}>
+      <Typography variant="h4" align="center" mb={4}>
+        LBOS-AI
+      </Typography>
+      <Typography variant="h6" align="center" mb={2}>
+        Sign in to your account
       </Typography>
 
-      {error && (
-        <Typography color="error" mb={2}>
-          {error}
+      <form onSubmit={handleSubmit} sx={{ width: '100%', mt: 3 }}>
+        <TextField
+          label="Email Address"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          fullWidth
+          mb={2}
+          autoFocus
+        />
+        <TextField
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          fullWidth
+          mb={3>
+        />
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          size="large"
+        >
+          Sign In
+        </Button>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          align="center"
+          mt={3}
+        >
+          Don't have an account?{" "}
+          <span
+            onClick={() => navigate('/register')}
+            style={{ textDecoration: 'underline', cursor: 'pointer' }}
+          >
+            Sign up
+          </span>
         </Typography>
-      )}
-
-      <TextField
-        label="Username"
-        variant="outlined"
-        margin="normal"
-        required
-        fullWidth
-        id="username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        autoFocus
-        marginBottom={2}
-      />
-
-      <TextField
-        label="Password"
-        type="password"
-        variant="outlined"
-        margin="normal"
-        required
-        fullWidth
-        id="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        marginBottom={2}
-      />
-
-      <Button
-        type="submit"
-        variant="contained"
-        color="primary"
-        fullWidth
-        disabled={loading}
-      >
-        {loading ? 'Signing in...' : 'Sign In'}
-      </Button>
-
-      <Box mt={3}>
-        <Typography align="center" size="small">
-          Demo credentials: username: demo, password: demo
-        </Typography>
-      </Box>
-    </Box>
+      </form>
+    </Container>
   );
 };
 

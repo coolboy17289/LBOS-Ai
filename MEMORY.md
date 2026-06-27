@@ -1,0 +1,1 @@
+- [Ultracode Mode Activation and Offline Training Feature Planning](ultracode-offline-training-plan.md) — Planning for ultracode mode activation and implementation of online training that creates offline-capable AI models for off-grid usage

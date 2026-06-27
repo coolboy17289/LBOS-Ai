@@ -1,13 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface AuthContextType {
-  user: {
-    id: number;
-    username: string;
-    email?: string;
-    role: string;
-  } | null;
-  isAuthenticated: boolean;
+  user: any | null;
+  isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -15,59 +10,45 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<{
-    id: number;
-    username: string;
-    email?: string;
-    role: string;
-  } | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Check if user is already logged in (e.g., from localStorage)
-    const storedUser = localStorage.getItem('lbos_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
+    // Check for existing token or user session
+    const token = localStorage.getItem('token');
+    if (token) {
+      // In a real app, you would validate the token with your backend
+      setUser({ username: 'testuser', role: 'user' });
     }
+    setIsLoading(false);
   }, []);
 
   const login = async (username: string, password: string) => {
-    // In a real app, this would call your authentication API
-    // For demo purposes, we'll simulate a successful login
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Mock user data
-      const mockUser = {
-        id: 1,
-        username: username,
-        email: `${username}@example.com`,
-        role: 'admin'
-      };
-
-      setUser(mockUser);
-      setIsAuthenticated(true);
-      localStorage.setItem('lbos_user', JSON.stringify(mockUser));
-    } catch (error) {
-      throw new Error('Invalid credentials');
-    }
+    // In a real app, you would make an API call to your backend
+    // For now, we'll simulate a successful login
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        setUser({ username, role: 'user' });
+        localStorage.setItem('token', 'fake-jwt-token');
+        resolve();
+      }, 1000);
+    });
   };
 
   const logout = () => {
     setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('lbos_user');
-    window.location.href = '/login';
+    localStorage.removeItem('token');
   };
 
-  if (typeof AuthContext === 'undefined') {
-    throw new Error('AuthProvider must be used within AuthProvider');
-  }
+  const value = {
+    user,
+    isLoading,
+    login,
+    logout
+  };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
@@ -75,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
